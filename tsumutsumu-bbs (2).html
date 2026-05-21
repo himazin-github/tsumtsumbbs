@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ツムツム掲示板 - つむちゃんねる</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap');
+
+:root {
+  --pink: #FF6B9D;
+  --pink-light: #FFB3D1;
+  --pink-pale: #FFF0F6;
+  --yellow: #FFD93D;
+  --yellow-light: #FFF3B0;
+  --blue: #6BCEFF;
+  --blue-dark: #3A8BFF;
+  --purple: #C084FC;
+  --green: #6EE7B7;
+  --red: #FF6B6B;
+  --orange: #FF9B45;
+  --dark: #2D1B33;
+  --mid: #6B4C7A;
+  --light: #F9F0FF;
+  --white: #FFFFFF;
+  --gray: #9B8FAA;
+  --border: #E8D5F0;
+  --shadow: rgba(255, 107, 157, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'M PLUS Rounded 1c', 'Kosugi Maru', sans-serif;
+  background: var(--pink-pale);
+  background-image: radial-gradient(var(--pink-light) 1.2px, transparent 1.2px), radial-gradient(var(--pink-light) 1.2px, var(--pink-pale) 1.2px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+  color: var(--dark);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== HEADER ===== */
+header {
+  background: var(--white);
+  padding: 10px 24px;
+  box-shadow: 0 4px 20px rgba(45, 27, 51, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  border-bottom: 3px solid var(--border);
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 32px;
+  animation: bounce 2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.05); }
+}
+
+.logo-text h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--pink);
+  letter-spacing: 1px;
+}
+
+.logo-text p {
+  font-size: 11px;
+  color: var(--gray);
+  font-weight: 700;
+}
+
+.search-container {
+  position: relative;
+  width: 280px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 16px 8px 36px;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--light);
+  color: var(--dark);
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--pink);
+  background: var(--white);
+  box-shadow: 0 0 0 4px var(--shadow);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray);
+  font-size: 14px;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.main-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== SIDEBAR ===== */
+aside {
+  width: 320px;
+  background: var(--white);
+  border-right: 3px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+}
+
+.nav-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 2px solid var(--border);
+  background: var(--light);
+}
+
+.nav-item {
+  padding: 12px 4px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mid);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-item:hover {
+  background: var(--pink-pale);
+  color: var(--pink);
+}
+
+.nav-item.active {
+  background: var(--white);
+  color: var(--pink);
+  border-bottom: 3px solid var(--pink);
+  font-weight: 800;
+}
+
+.sidebar-header {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--mid);
+}
+
+.thread-list-wrapper {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.thread-item {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.thread-item:hover {
+  background: var(--pink-pale);
+}
+
+.thread-item.active {
+  background: linear-gradient(90deg, var(--pink-pale), var(--white));
+  border-left: 4px solid var(--pink);
+  padding-left: 12px;
+}
+
+.thread-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.thread-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.thread-item-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.thread-item-count {
+  background: var(--light);
+  color: var(--mid);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 12px;
+  min-width: 32px;
+  text-align: center;
+}
+
+.thread-item.active .thread-item-count {
+  background: var(--pink);
+  color: var(--white);
+}
+
+/* ===== CONTENT AREA ===== */
+main {
+  flex: 1;
+  background: transparent;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state {
+  margin: auto;
+  text-align: center;
+  color: var(--gray);
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+/* ===== DETAIL VIEW ===== */
+.detail-header {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  border: 3px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.detail-board-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  background: var(--pink-pale);
+  color: var(--pink);
+  margin-bottom: 10px;
+}
+
+.detail-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dark);
+}
+
+.posts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.post-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  border: 2px solid var(--border);
+  position: relative;
+}
+
+.post-card.first-post {
+  border-color: var(--pink-light);
+  box-shadow: 0 4px 15px var(--shadow);
+}
+
+.post-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.post-number {
+  font-weight: 800;
+  color: var(--pink);
+}
+
+.post-author {
+  font-weight: 800;
+  color: var(--mid);
+}
+
+.post-trip {
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.post-date {
+  margin-left: auto;
+}
+
+.post-body {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--dark);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ===== REPLY BOX ===== */
+.reply-box {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px;
+  border: 3px solid var(--border);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.reply-box-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--mid);
+  margin-bottom: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.reply-box input, .reply-box textarea, .modal-content input, .modal-content textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--dark);
+  background: var(--light);
+  transition: all 0.2s;
+}
+
+.reply-box input:focus, .reply-box textarea:focus, .modal-content input:focus, .modal-content textarea:focus {
+  outline: none;
+  border-color: var(--pink);
+  background: var(--white);
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--pink);
+  color: var(--white);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.btn-primary:hover {
+  background: #ff528c;
+  transform: translateY(-1px);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+  border-radius: 14px;
+}
+
+.btn-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(45, 27, 51, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: var(--white);
+  width: 500px;
+  max-width: 90%;
+  border-radius: 24px;
+  padding: 24px;
+  border: 4px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+
+.modal-overlay.show .modal-content {
+  transform: scale(1);
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--mid);
+  margin-bottom: 6px;
+}
+
+/* ===== TOAST ===== */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  padding: 12px 24px;
+  border-radius: 30px;
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  animation: slideIn 0.3s forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast-success { background: var(--green); color: var(--dark); }
+.toast-error { background: var(--red); }
+
+/* ===== BADGES ===== */
+.badge {
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+}
+.badge-pinned { background: var(--yellow-light); color: #b7791f; }
+.badge-locked { background: #fee2e2; color: #ef4444; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-icon">🧸</div>
+    <div class="logo-text">
+      <h1>つむちゃんねる</h1>
+      <p>ツムツムファンのみんなが集まる広場</p>
+    </div>
+  </div>
+  <div class="search-container">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchBar" class="search-input" placeholder="スレッドを検索...">
+  </div>
+</header>
+
+<div class="main-container">
+  <aside>
+    <div id="boardNav" class="nav-tabs">
+      </div>
+    <div class="sidebar-header">
+      <span class="sidebar-title">スレッド一覧</span>
+      <button class="btn btn-primary btn-sm" onclick="window.openCreateModal()">＋ 新スレ</button>
+    </div>
+    <div class="thread-list-wrapper" id="threadList">
+      </div>
+  </aside>
+
+  <main id="threadDetailArea">
+    </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="window.closeModalOnOverlay(e)">
+  <div class="modal-content" id="modalContent">
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+// ===== BOARDS CONSTANT =====
+const BOARDS = [
+  { id: 'all', name: '全一覧', icon: '✨' },
+  { id: 'chat', name: '雑談', icon: '💬' },
+  { id: 'strategy', name: '攻略・コイン稼ぎ', icon: '🪙' },
+  { id: 'event', name: 'イベント・新ツム', icon: '📅' }
+];
+
+// ===== FIREBASE SETUP =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// 🚀 君のFirebaseプロジェクトの設定値をセットしたよ！
+const firebaseConfig = {
+  apiKey: "AIzaSyBo8sJomi_XcVimZOY6lzOG8F4JYFScTUQ",
+  authDomain: "tsumtsumbbs.firebaseapp.com",
+  projectId: "tsumtsumbbs",
+  storageBucket: "tsumtsumbbs.firebasestorage.app",
+  messagingSenderId: "526083731720",
+  appId: "1:526083731720:web:0391f0306e6e01c2ea3cbd",
+  measurementId: "G-NK9K6S6KLQ"
+};
+
+// Firebaseの初期化
+const app = initializeApp(firebaseConfig);
+const dbFirestore = getFirestore(app);
+
+// グローバル変数
+let db = { threads: {}, posts: {} };
+let currentBoard = 'all';
+let currentThreadId = null;
+const MY_IP = '127.0.0.1'; // 簡易版
+
+// ページ読み込み時の初期化処理
+window.addEventListener('DOMContentLoaded', () => {
+  // 1. スレッドデータをリアルタイム監視💩
+  const qThreads = query(collection(dbFirestore, "threads"), orderBy("date", "desc"));
+  onSnapshot(qThreads, (snapshot) => {
+    db.threads = {};
+    snapshot.forEach((doc) => {
+      db.threads[doc.id] = { id: doc.id, ...doc.data() };
+    });
+    render();
+  });
+
+  // 2. レス（書き込み）データをリアルタイム監視💩
+  const qPosts = query(collection(dbFirestore, "posts"), orderBy("date", "asc"));
+  onSnapshot(qPosts, (snapshot) => {
+    db.posts = {};
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if (!db.posts[data.thread_id]) db.posts[data.thread_id] = [];
+      db.posts[data.thread_id].push({ id: doc.id, ...data });
+    });
+    render();
+  });
+
+  // 検索バーのイベント設定
+  document.getElementById('searchBar').addEventListener('input', handleSearch);
+});
+
+// ===== CORE FUNCTIONS =====
+function render() {
+  renderNav();
+  renderThreads();
+  if (currentThreadId) {
+    renderThreadDetail(currentThreadId);
+  } else {
+    document.getElementById('threadDetailArea').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <p>スレッドを選択するか、新しいスレッドを作成してね！</p>
+      </div>
+    `;
+  }
+}
+
+function renderNav() {
+  const nav = document.getElementById('boardNav');
+  nav.innerHTML = '';
+  BOARDS.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = `nav-item ${currentBoard === b.id ? 'active' : ''}`;
+    btn.innerHTML = `${b.icon} ${b.name}`;
+    btn.onclick = () => {
+      currentBoard = b.id;
+      currentThreadId = null;
+      render();
+    };
+    nav.appendChild(btn);
+  });
+}
+
+function renderThreads() {
+  const list = document.getElementById('threadList');
+  list.innerHTML = '';
+  
+  const filtered = Object.values(db.threads).filter(t => currentBoard === 'all' || t.board_id === currentBoard);
+  
+  // ピン留めを上にするソート
+  filtered.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--gray);">スレッドがまだないよ</div>';
+    return;
+  }
+
+  filtered.forEach(t => {
+    const posts = db.posts[t.id] || [];
+    const count = posts.length;
+    const item = document.createElement('div');
+    item.className = `thread-item ${currentThreadId === t.id ? 'active' : ''}`;
+    if (t.pinned) item.classList.add('pinned');
+    
+    item.onclick = () => {
+      currentThreadId = t.id;
+      render();
+    };
+
+    item.innerHTML = `
+      <div class="thread-item-main">
+        ${t.pinned ? '<span class="badge badge-pinned">📌 ピン留め</span>' : ''}
+        ${t.locked ? '<span class="badge badge-locked">🔒 ロック</span>' : ''}
+        <div class="thread-item-title">${escapeHtml(t.title)}</div>
+        <div class="thread-item-meta">
+          <span>👤 ${escapeHtml(t.name || '名無し')}</span>
+          <span>📅 ${formatDate(t.date)}</span>
+        </div>
+      </div>
+      <div class="thread-item-count">${count}</div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function renderThreadDetail(id) {
+  const t = db.threads[id];
+  const area = document.getElementById('threadDetailArea');
+  if (!t) {
+    area.innerHTML = '<div class="empty-state"><p>スレッドが見つかりません</p></div>';
+    return;
+  }
+
+  const posts = db.posts[id] || [];
+  const board = BOARDS.find(b => b.id === t.board_id);
+
+  let postsHtml = '';
+  posts.forEach((p, idx) => {
+    postsHtml += `
+      <div class="post-card ${idx === 0 ? 'first-post' : ''}">
+        <div class="post-header">
+          <span class="post-number">#${idx + 1}</span>
+          <span class="post-author">${escapeHtml(p.name || '名無しさん')}</span>
+          ${p.tripcode ? `<span class="post-trip">${escapeHtml(p.tripcode)}</span>` : ''}
+          <span class="post-date">${formatDate(p.date)}</span>
+          ${p.sage ? '<span class="badge" style="background:var(--gray); color:#fff;">sage</span>' : ''}
+        </div>
+        <div class="post-body">${nl2br(escapeHtml(p.body))}</div>
+      </div>
+    `;
+  });
+
+  area.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-board-badge">${board ? board.icon + ' ' + board.name : ''}</div>
+      <h2 class="detail-title">${escapeHtml(t.title)}</h2>
+    </div>
+    <div class="posts-container">
+      ${postsHtml}
+    </div>
+    <div class="reply-box">
+      <div class="reply-box-title">お返事を書く 💬</div>
+      ${t.locked ? `
+        <div style="background:var(--light); padding:15px; border-radius:12px; text-align:center; color:var(--mid);">
+          🔒 このスレッドはロックされているため書き込みできません。
+        </div>
+      ` : `
+        <div class="form-grid">
+          <input type="text" id="replyName" placeholder="お名前（省略可）" max="20">
+          <input type="text" id="replyTrip" placeholder="トリップ用パス（省略可）" max="20">
+          <input type="text" id="replyMail" placeholder="メール（sageなど）" max="40">
+        </div>
+        <textarea id="replyBody" placeholder="ここにメッセージを書いてね... 🧸" rows="4" style="margin-top:10px; width:100%; box-sizing:border-box;"></textarea>
+        <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+          <button class="btn btn-primary" onclick="window.submitReply('${t.id}')">投稿する ✨</button>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+// ===== ACTIONS =====
+window.openCreateModal = function() {
+  if (currentBoard === 'all') {
+    toast('error', '全一覧からは作成できません。カテゴリを選んでね！');
+    return;
+  }
+  const board = BOARDS.find(b => b.id === currentBoard);
+  const html = `
+    <h3 style="margin-bottom:15px; color:var(--dark);">${board.icon} ${board.name} に新スレを建てる</h3>
+    <div class="form-group">
+      <label>スレッドタイトル 📌</label>
+      <input type="text" id="newTitle" placeholder="タイトルを入力してね" style="width:100%; box-sizing:border-box;" max="50">
+    </div>
+    <div class="form-grid" style="margin-top:12px;">
+      <div>
+        <label>お名前</label>
+        <input type="text" id="newName" placeholder="名無しさん" style="width:100%; box-sizing:border-box;" max="20">
+      </div>
+      <div>
+        <label>トリップパス</label>
+        <input type="text" id="newTrip" placeholder="パスワード" style="width:100%; box-sizing:border-box;" max="20">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px;">
+      <label>最初の本文 📝</label>
+      <textarea id="newBody" placeholder="ここに最初の内容を書いてね..." rows="5" style="width:100%; box-sizing:border-box;"></textarea>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+      <button class="btn" onclick="window.closeModal()" style="background:#eee; color:#666;">キャンセル</button>
+      <button class="btn btn-primary" onclick="window.submitNewThread()">スレッドを作成 🚀</button>
+    </div>
+  `;
+  showModal(html);
+};
+
+window.submitNewThread = async function() {
+  const title = document.getElementById('newTitle').value.trim();
+  const name = document.getElementById('newName').value.trim() || '名無しさん';
+  const body = document.getElementById('newBody').value.trim();
+  const tripPass = document.getElementById('newTrip').value;
+
+  if (!title || !body) return toast('error', 'タイトルと本文を入力してね');
+
+  let finalName = name;
+  let tripcode = '';
+  if (tripPass) {
+    tripcode = '◆' + simpleHash(tripPass);
+  }
+
+  const threadDate = new Date().toISOString();
+
+  try {
+    // 1. スレッドをFirestoreに保存💩
+    const threadDoc = await addDoc(collection(dbFirestore, "threads"), {
+      board_id: currentBoard,
+      title: title,
+      name: finalName + tripcode,
+      date: threadDate,
+      pinned: false,
+      locked: false
+    });
+
+    // 2. 最初の投稿をpostsコレクションに保存
+    await addDoc(collection(dbFirestore, "posts"), {
+      thread_id: threadDoc.id,
+      name: finalName,
+      tripcode: tripcode,
+      body: body,
+      date: threadDate,
+      ip: MY_IP,
+      sage: false
+    });
+
+    toast('success', 'スレッドを建てたよ！');
+    window.closeModal();
+    currentThreadId = threadDoc.id;
+  } catch (e) {
+    toast('error', 'エラーが起きたよ');
+    console.error(e);
+  }
+};
+
+window.submitReply = async function(threadId) {
+  const name = document.getElementById('replyName').value.trim() || '名無しさん';
+  const tripPass = document.getElementById('replyTrip').value;
+  const mail = document.getElementById('replyMail').value.trim();
+  const body = document.getElementById('replyBody').value.trim();
+
+  if (!body) return toast('error', '本文を入力してください');
+
+  let tripcode = '';
+  if (tripPass) {
+    tripcode = '◆' + simpleHash(tripPass);
+  }
+  const isSage = mail.toLowerCase() === 'sage';
+
+  try {
+    // レスをFirestoreに保存💩
+    await addDoc(collection(dbFirestore, "posts"), {
+      thread_id: threadId,
+      name: name,
+      tripcode: tripcode,
+      body: body,
+      date: new Date().toISOString(),
+      ip: MY_IP,
+      sage: isSage
+    });
+
+    toast('success', '投稿完了！');
+    clearReplyForm();
+  } catch (e) {
+    toast('error', '投稿に失敗しちゃった');
+  }
+};
+
+// ===== UTILS =====
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(36).substring(0, 8);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function nl2br(str) {
+  return str.replace(/\n/g, '<br>');
+}
+
+function formatDate(isoStr) {
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return '不明な日時';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const date = String(d.getDate()).padStart(2, '0');
+  const h = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${y}/${m}/${date} ${h}:${min}`;
+}
+
+function handleSearch(e) {
+  const q = e.target.value.toLowerCase().trim();
+  const items = document.querySelectorAll('.thread-item');
+  items.forEach(el => {
+    const title = el.querySelector('.thread-item-title')?.textContent.toLowerCase() || '';
+    el.style.display = (!q || title.includes(q)) ? '' : 'none';
+  });
+}
+
+function clearReplyForm() {
+  ['replyName','replyTrip','replyMail','replyBody'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+// ===== MODAL =====
+function showModal(content) {
+  document.getElementById('modalContent').innerHTML = content;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+window.closeModal = function() {
+  document.getElementById('modalOverlay').classList.remove('show');
+};
+
+window.closeModalOnOverlay = function(e) {
+  if (e.target === document.getElementById('modalOverlay')) window.closeModal();
+};
+
+// ===== TOAST =====
+function toast(type, msg) {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+</script>
+
+</body>
+</html>
